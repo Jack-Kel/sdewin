@@ -1,41 +1,55 @@
-import { useState } from 'react'
-import logo from './logo.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
 
+var lastUpdate = performance.now()
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [gold, setGold] = useState(0)
+  const [crops, setCrops] = useState({})
+
+  const growParsnips = () => {
+    setCrops((crops) => {
+      crops["parsnips"] = 2000
+      return crops
+    })
+  }
+  //https://isaacsukin.com/news/2015/01/detailed-explanation-javascript-game-loops-and-timing
+  // if you want to impove game loop/update time
+  const tick = (now) => {
+    const delta = now - lastUpdate
+    console.log(delta)
+    lastUpdate = now
+
+    //Game loop here:
+    setCrops((crops) => {
+      crops["parsnips"] -= delta
+      return crops
+    })
+    if (crops["parsnips"] <= 0){
+      setGold((gold) => gold + 30)
+      setCrops((crops) => {
+        delete crops["parsnips"]
+        return crops
+      })
+    }   
+    window.requestAnimationFrame(tick)
+  }
+
+  useEffect(() => {
+    console.log("game start")
+    tick(lastUpdate)
+  }, [])
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
         <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
+          <button type="button" onClick={() => setGold((gold) => gold + 1)}>
+            gold is: {gold}
           </button>
-        </p>
-        <p>
-          Edit <code>App.jsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
+          <button type="button" onClick={growParsnips}>
+            grow parsnips!
+          </button>
         </p>
       </header>
     </div>
