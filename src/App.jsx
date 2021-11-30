@@ -1,9 +1,8 @@
-import { useState, useEffect, Children } from 'react'
+import { useState, useEffect, useRef, Children } from 'react'
 import './App.css'
 
-var lastUpdate = performance.now()
-
 function App() {
+  const lastUpdate = useRef(performance.now())
   const [gold, setGold] = useState(500)
   const [crops, setCrops] = useState({})
 
@@ -20,9 +19,9 @@ function App() {
   //https://isaacsukin.com/news/2015/01/detailed-explanation-javascript-game-loops-and-timing
   // if you want to impove game loop/update time
   const tick = (now) => {
-    const delta = now - lastUpdate
+    const delta = now - lastUpdate.current
     console.log(delta)
-    lastUpdate = now
+    lastUpdate.current = now
 
     //Game loop here:
     setCrops((crops) => {
@@ -41,7 +40,7 @@ function App() {
 
   useEffect(() => {
     console.log("game start")
-    tick(lastUpdate)
+    tick(lastUpdate.current)
   }, [])
 
   return (
