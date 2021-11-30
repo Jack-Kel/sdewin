@@ -23,9 +23,14 @@ function App() {
   const lastUpdate = useRef(performance.now())
   const [gold, setGold] = useState(500)
   const [crops, setCrops] = useState({})
+  // Add new "should repeat" object
+  // {
+  //   parsnips: true, 
+  // }
 
   const growCrop = (crop) => {
     return () => {
+      //toggle the "should repeat" state for this crop 
       if(gold > cropData[crop].cost){
         setGold((gold) => gold - cropData[crop].cost)
   
@@ -55,6 +60,7 @@ function App() {
           return crops
         })
         console.log(gold, cropData[crop])
+        //add a check if 'should repeat' has key 'crop'
         if(gold > cropData[crop].cost){
           growCrop(crop)()
         }
