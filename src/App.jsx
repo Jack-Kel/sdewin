@@ -54,6 +54,10 @@ function App() {
           delete crops[crop]
           return crops
         })
+        console.log(gold, cropData[crop])
+        if(gold > cropData[crop].cost){
+          growCrop(crop)()
+        }
       }   
     }
 
