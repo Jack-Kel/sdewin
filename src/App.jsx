@@ -1,45 +1,66 @@
 import { useState, useEffect, useRef, Children } from 'react'
 import './App.css'
 
+const cropData = {
+  parsnips: {
+    cost: 20,
+    growTime: 4000,
+    sellPrice: {
+      base: 35
+      //add more prices here
+    }
+  },
+  cauliflower: {
+    cost: 80,
+    growTime: 12000,
+    sellPrice: {
+      base: 175
+    }
+  }
+}
+
 function App() {
   const lastUpdate = useRef(performance.now())
   const [gold, setGold] = useState(500)
   const [crops, setCrops] = useState({})
 
-  const growParsnips = () => {
-    if(gold > 20){
-      setGold((gold) => gold - 20)
-
-      setCrops((crops) => {
-        crops["parsnips"] = 4000
-        return crops
-      })
+  const growCrop = (crop) => {
+    return () => {
+      if(gold > cropData[crop].cost){
+        setGold((gold) => gold - cropData[crop].cost)
+  
+        setCrops((crops) => {
+          crops[crop] = cropData[crop].growTime
+          return crops
+        })
+      }
     }
   }
   //https://isaacsukin.com/news/2015/01/detailed-explanation-javascript-game-loops-and-timing
   // if you want to impove game loop/update time
   const tick = (now) => {
     const delta = now - lastUpdate.current
-    console.log(delta)
     lastUpdate.current = now
 
     //Game loop here:
-    setCrops((crops) => {
-      crops["parsnips"] -= delta
-      return crops
-    })
-    if (crops["parsnips"] <= 0){
-      setGold((gold) => gold + 35)
+    for(const crop in cropData){
       setCrops((crops) => {
-        delete crops["parsnips"]
+        crops[crop] -= delta
         return crops
       })
-    }   
+      if (crops[crop] <= 0){
+        setGold((gold) => gold + cropData[crop].sellPrice.base)
+        setCrops((crops) => {
+          delete crops[crop]
+          return crops
+        })
+      }   
+    }
+
     window.requestAnimationFrame(tick)
   }
 
   useEffect(() => {
-    console.log("game start")
     tick(lastUpdate.current)
   }, [])
 
@@ -48,8 +69,11 @@ function App() {
       <Button onClick={() => setGold((gold) => gold + 1)}>
         gold is: {gold}
       </Button>
-      <Button onClick={growParsnips}>
-        grow parsnips!
+      <Button onClick={growCrop("parsnips")}>
+        Grow Parsnips!
+      </Button>
+      <Button onClick={growCrop("cauliflower")}>
+        Grow Cauliflower!
       </Button>
     </div>
   )
